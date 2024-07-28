@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.devtestejavagermatech.dao.UsuarioDAO;
 import com.devtestejavagermatech.model.Usuario;
+import com.devtestejavagermatech.util.exception.ErroSistema;
 
 public class UsuarioDAOTest {
 
@@ -56,7 +57,11 @@ public class UsuarioDAOTest {
     private Usuario createUsuario() {
         Usuario usuario = new Usuario(UUID.randomUUID(), "Alex Silva", "123456789", "alex.silva@gmail.com",
                 "123.456.789-00", "algumasenhasegura");
-        usuarioDAO.create(usuario);
+        try {
+            usuarioDAO.create(usuario);
+        } catch (ErroSistema e) {
+            e.printStackTrace();
+        }
         return usuario;
     }
 }
