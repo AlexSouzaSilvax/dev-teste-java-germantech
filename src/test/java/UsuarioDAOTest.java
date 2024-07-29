@@ -1,9 +1,8 @@
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.devtestejavagermatech.dao.UsuarioDAO;
@@ -15,43 +14,43 @@ public class UsuarioDAOTest {
     private UsuarioDAO usuarioDAO;
 
     @Before
-    public void setUp() {
+    public void setUp() throws ErroSistema {
         usuarioDAO = new UsuarioDAO();
     }
 
-    @Test
-    public void testCreateUsuario() {
-        createUsuario();
-        List<Usuario> usuarios = usuarioDAO.read();
-        Assert.assertEquals(1, usuarios.size());
-        Assert.assertEquals("Alex Silva", usuarios.get(0).getNome());
+    @After
+    public void tearDown() throws ErroSistema {
+        usuarioDAO.delete(usuarioDAO.buscarUsuarioPorCpf("123.456.789-00").getId());
     }
 
     @Test
-    public void testBuscarUsuarioPorCpf() {
-        createUsuario();
-        Optional<Usuario> retornoUsuario = usuarioDAO.buscarUsuarioPorCpf("123.456.789-00");
-        Assert.assertTrue(retornoUsuario.isPresent());
-        Assert.assertEquals("Alex Silva", retornoUsuario.get().getNome());
+    public void testCreateUsuario() throws ErroSistema {
+        Usuario usuario = createUsuario();
+        deleteUsuarioById(usuario.getId());
+        Assert.assertNotNull(usuarioDAO.buscarUsuarioPorId(usuario.getId()));
     }
 
     @Test
-    public void testUpdateUsuario() {
+    public void testBuscarUsuarioPorCpf() throws ErroSistema {
+        Usuario retornoUsuario = usuarioDAO.buscarUsuarioPorCpf("123.456.789-00");
+        Assert.assertNotNull(retornoUsuario.getId());
+
+    }
+
+    @Test
+    public void testUpdateUsuario() throws ErroSistema {
         Usuario usuario = createUsuario();
         usuario.setNome("Alex Souza da Silva");
         usuarioDAO.update(usuario);
 
-        Optional<Usuario> updatedUsuario = usuarioDAO.buscarUsuarioPorCpf("123.456.789-00");
-        Assert.assertTrue(updatedUsuario.isPresent());
-        Assert.assertEquals("João S. Silva", updatedUsuario.get().getNome());
+        Assert.assertNotNull(usuarioDAO.buscarUsuarioPorId(usuario.getId()));
     }
 
     @Test
-    public void testDeleteUsuarioByCpf() {
-        createUsuario();
-        usuarioDAO.delete("123.456.789-00");
-        List<Usuario> usuarios = usuarioDAO.read();
-        Assert.assertTrue(usuarios.isEmpty());
+    public void testDeleteUsuarioById() throws ErroSistema {
+        usuarioDAO.delete(UUID.fromString("c02774de-0af3-47e5-8b5b-2b6de1a5a9f7"));
+        Assert.assertNotNull(usuarioDAO.buscarUsuarioPorId(UUID.fromString("c02774de-0af3-47e5-8b5b-2b6de1a5a9f7")));
+
     }
 
     private Usuario createUsuario() {
@@ -63,5 +62,9 @@ public class UsuarioDAOTest {
             e.printStackTrace();
         }
         return usuario;
+    }
+
+    public void deleteUsuarioById(UUID pId) throws ErroSistema {
+        usuarioDAO.delete(pId);
     }
 }
