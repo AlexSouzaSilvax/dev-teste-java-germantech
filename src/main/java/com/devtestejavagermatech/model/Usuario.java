@@ -20,6 +20,9 @@ public class Usuario {
         this.senha = senha;
     }
 
+    public Usuario() {
+    }
+
     public UUID getId() {
         return this.id;
     }
