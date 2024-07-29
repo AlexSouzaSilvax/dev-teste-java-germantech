@@ -32,9 +32,8 @@ public class UsuarioDAOTest {
 
     @Test
     public void testBuscarUsuarioPorCpf() throws ErroSistema {
-        Usuario retornoUsuario = usuarioDAO.buscarUsuarioPorCpf("123.456.789-00");
-        Assert.assertNotNull(retornoUsuario.getId());
-
+        createUsuario();
+        Assert.assertNotNull(usuarioDAO.buscarUsuarioPorCpf("123.456.789-00"));
     }
 
     @Test
