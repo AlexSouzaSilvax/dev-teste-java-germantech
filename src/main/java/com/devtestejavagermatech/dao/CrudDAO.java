@@ -1,10 +1,8 @@
 package com.devtestejavagermatech.dao;
 
-
 import java.util.List;
 
 import com.devtestejavagermatech.util.exception.ErroSistema;
-
 
 public interface CrudDAO<E> {
 
