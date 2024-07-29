@@ -8,12 +8,15 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import com.devtestejavagermatech.model.Usuario;
 import com.devtestejavagermatech.util.ConexaoDB;
 
 public class CadastroUsuarios extends JFrame {
@@ -25,6 +28,8 @@ public class CadastroUsuarios extends JFrame {
     private JTable table;
     private DefaultTableModel tableModel;
     private Connection conexao;
+
+    private List<Usuario> listaUsuarios = new ArrayList<>();
 
     public CadastroUsuarios() {
         initialize();
@@ -108,6 +113,7 @@ public class CadastroUsuarios extends JFrame {
         editButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println(e);
                 editarUsuario();
                 limpaForm();
             }
@@ -152,6 +158,9 @@ public class CadastroUsuarios extends JFrame {
                         rs.getString("email"),
                         rs.getString("cpf")
                 });
+
+                listaUsuarios.add(new Usuario(UUID.fromString(rs.getObject("id").toString()), rs.getString("nome"),
+                        rs.getString("telefone"), rs.getString("email"), rs.getString("cpf"), rs.getString("senha")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -159,6 +168,7 @@ public class CadastroUsuarios extends JFrame {
     }
 
     private void adicionarUsuario() {
+        tableModel.setRowCount(0);
         if (validarCampos()) {
             try {
                 String nome = nomeField.getText();
@@ -168,7 +178,8 @@ public class CadastroUsuarios extends JFrame {
                 String senha = new String(senhaField.getPassword());
 
                 if (usuarioExiste(cpf)) {
-                    JOptionPane.showMessageDialog(this, "CPF já cadastrado!");
+                    //implementar update usuario
+                    JOptionPane.showMessageDialog(this, "Usuário alterado com sucesso!");
                     return;
                 }
 
@@ -192,6 +203,14 @@ public class CadastroUsuarios extends JFrame {
     }
 
     private void editarUsuario() {
+
+        Usuario usuarioSelecionado = listaUsuarios.get(table.getSelectedRow());
+        nomeField.setText(usuarioSelecionado.getNome());
+        telefoneField.setText(usuarioSelecionado.getTelefone());
+        emailField.setText(usuarioSelecionado.getEmail());
+        cpfField.setText(usuarioSelecionado.getCpf());
+        senhaField.setText(usuarioSelecionado.getSenha());
+
         if (validarCampos()) {
             try {
                 String nome = nomeField.getText();
@@ -200,23 +219,21 @@ public class CadastroUsuarios extends JFrame {
                 String cpf = cpfField.getText();
                 String senha = new String(senhaField.getPassword());
 
-                if (!usuarioExiste(cpf)) {
-                    JOptionPane.showMessageDialog(this, "CPF não encontrado!");
-                    return;
+                if (usuarioExiste(cpf)) {
+
+                    String hashedSenha = BCrypt.hashpw(senha, BCrypt.gensalt());
+
+                    PreparedStatement ps = conexao.prepareStatement(
+                            "UPDATE usuario_ SET nome = ?, telefone = ?, email = ?, senha = ? WHERE cpf = ?");
+                    ps.setString(1, nome);
+                    ps.setString(2, telefone);
+                    ps.setString(3, email);
+                    ps.setString(4, hashedSenha);
+                    ps.setString(5, cpf);
+                    ps.executeUpdate();
+                    loadUsuarios();
+                    JOptionPane.showMessageDialog(this, "Usuário editado com sucesso!");
                 }
-
-                String hashedSenha = BCrypt.hashpw(senha, BCrypt.gensalt());
-
-                PreparedStatement ps = conexao.prepareStatement(
-                        "UPDATE usuario_ SET nome = ?, telefone = ?, email = ?, senha = ? WHERE cpf = ?");
-                ps.setString(1, nome);
-                ps.setString(2, telefone);
-                ps.setString(3, email);
-                ps.setString(4, hashedSenha);
-                ps.setString(5, cpf);
-                ps.executeUpdate();
-                loadUsuarios();
-                JOptionPane.showMessageDialog(this, "Usuário editado com sucesso!");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -224,6 +241,7 @@ public class CadastroUsuarios extends JFrame {
     }
 
     private void excluirUsuario() {
+        tableModel.setRowCount(0);
         String cpf = cpfField.getText();
         try {
             if (!usuarioExiste(cpf)) {
@@ -240,6 +258,7 @@ public class CadastroUsuarios extends JFrame {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
     private void buscarUsuarios() {
@@ -279,8 +298,7 @@ public class CadastroUsuarios extends JFrame {
                         rs.getString("nome"),
                         rs.getString("telefone"),
                         rs.getString("email"),
-                        rs.getString("cpf"),
-                        rs.getString("senha")
+                        rs.getString("cpf")
                 });
             }
         } catch (SQLException e) {
@@ -289,7 +307,7 @@ public class CadastroUsuarios extends JFrame {
     }
 
     private void readUsuarios() {
-
+        tableModel.setRowCount(0);
         tableModel.setRowCount(0);
         try {
             String query = "SELECT * FROM usuario_";
