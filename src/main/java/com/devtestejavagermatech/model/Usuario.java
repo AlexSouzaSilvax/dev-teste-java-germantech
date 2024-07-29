@@ -20,6 +20,14 @@ public class Usuario {
         this.senha = senha;
     }
 
+    public Usuario(String nome, String telefone, String email, String cpf, String senha) {
+        this.nome = nome;
+        this.telefone = telefone;
+        this.email = email;
+        this.cpf = cpf;
+        this.senha = senha;
+    }
+
     public Usuario() {
     }
 
