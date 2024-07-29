@@ -23,13 +23,13 @@ public class ConexaoDBTest {
     }
 
     @Test
-    public void testGetConexao() {
+    public void testGetConexao() throws ClassNotFoundException {
         Connection conexao = ConexaoDB.getConexao();
         assertNotNull(conexao);
     }
 
     @Test
-    public void testFecharConexao() {
+    public void testFecharConexao() throws ClassNotFoundException {
         Connection conexao = ConexaoDB.getConexao();
         assertNotNull(conexao);
     }

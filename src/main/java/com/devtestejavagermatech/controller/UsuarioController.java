@@ -21,12 +21,12 @@ public class UsuarioController {
     Connection conexao;
     UsuarioDAO usuarioDAO;
 
-    public UsuarioController() {
+    public UsuarioController() throws ClassNotFoundException {
         conexao = ConexaoDB.getConexao();
         usuarioDAO = new UsuarioDAO();
     }
 
-    public void create(Usuario pUsuario) throws ErroSistema {
+    public void create(Usuario pUsuario) throws ErroSistema, ClassNotFoundException {
         if (existeUsuarioCpf(pUsuario.getCpf())) {
             JOptionPane.showMessageDialog(null, "CPF já cadastrado!", "Usuário", 1);
             return;
@@ -38,17 +38,17 @@ public class UsuarioController {
         JOptionPane.showMessageDialog(null, "Usuário adicionado com sucesso!", "Usuário", 1);
     }
 
-    public List<Usuario> read() throws ErroSistema {
+    public List<Usuario> read() throws ErroSistema, ClassNotFoundException {
         return usuarioDAO.read();
     }
 
-    public void update(Usuario pUsuario) throws ErroSistema {
+    public void update(Usuario pUsuario) throws ErroSistema, ClassNotFoundException {
         pUsuario.setSenha(BCrypt.hashpw(pUsuario.getSenha(), BCrypt.gensalt()));
         usuarioDAO.update(pUsuario);
         JOptionPane.showMessageDialog(null, "Usuário adicionado com sucesso!", "Usuário", 1);
     }
 
-    public void delete(String pCpf) throws ErroSistema {
+    public void delete(String pCpf) throws ErroSistema, ClassNotFoundException {
         if (pCpf.isEmpty() || pCpf.equals("   .   .   -  ") || pCpf.equals(null)) {
             JOptionPane.showMessageDialog(null, "Selecione um usuário", "Usuário", 1);
             return;
@@ -57,18 +57,18 @@ public class UsuarioController {
         JOptionPane.showMessageDialog(null, "Excluído com sucesso!", "Usuário", 1);
     }
 
-    private Usuario buscarUsuarioPorCpf(String pCpf) throws ErroSistema {
+    private Usuario buscarUsuarioPorCpf(String pCpf) throws ErroSistema, ClassNotFoundException {
         return usuarioDAO.buscarUsuarioPorCpf(pCpf);
     }
 
-    private boolean existeUsuarioCpf(String pCpf) throws ErroSistema {
+    private boolean existeUsuarioCpf(String pCpf) throws ErroSistema, ClassNotFoundException {
         if (this.buscarUsuarioPorCpf(pCpf).getId() != null) {
             return true;
         }
         return false;
     }
 
-    public List<Usuario> buscarByNomeOuEmailOuCpf(String nome, String email, String cpf) throws ErroSistema {
+    public List<Usuario> buscarByNomeOuEmailOuCpf(String nome, String email, String cpf) throws ErroSistema, ClassNotFoundException {
         return usuarioDAO.buscarByNomeOuEmailOuCpf(nome, email, cpf);
     }
 

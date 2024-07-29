@@ -5,7 +5,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.List;
@@ -28,7 +27,7 @@ public class CadastroUsuarios extends JFrame {
     private UsuarioController usuarioController = new UsuarioController();
     private Usuario usuarioSelecionado = new Usuario();
 
-    public CadastroUsuarios() throws ErroSistema {
+    public CadastroUsuarios() throws ErroSistema, ClassNotFoundException {
         initialize();
         readUsuarios();
     }
@@ -88,6 +87,9 @@ public class CadastroUsuarios extends JFrame {
                 createUsuario();
             } catch (ErroSistema e1) {
                 e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
             }
             limpaForm();
         });
@@ -99,6 +101,9 @@ public class CadastroUsuarios extends JFrame {
                 buscarUsuarios();
             } catch (ErroSistema e1) {
                 e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
             }
             limpaForm();
         });
@@ -109,6 +114,9 @@ public class CadastroUsuarios extends JFrame {
             try {
                 readUsuarios();
             } catch (ErroSistema e1) {
+                e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             limpaForm();
@@ -122,6 +130,9 @@ public class CadastroUsuarios extends JFrame {
                 atualizaUsuario();
             } catch (ErroSistema e1) {
                 e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
             }
             limpaForm();
             atualizaButton.setVisible(false);
@@ -134,6 +145,9 @@ public class CadastroUsuarios extends JFrame {
             try {
                 excluirUsuario();
             } catch (ErroSistema e1) {
+                e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             limpaForm();
@@ -161,7 +175,7 @@ public class CadastroUsuarios extends JFrame {
         return new JScrollPane(table);
     }
 
-    private void readUsuarios() throws ErroSistema {
+    private void readUsuarios() throws ErroSistema, ClassNotFoundException {
         tableModel.setRowCount(0);
         listaUsuarios = usuarioController.read();
         for (Usuario u : listaUsuarios) {
@@ -171,7 +185,7 @@ public class CadastroUsuarios extends JFrame {
         }
     }
 
-    private void createUsuario() throws ErroSistema {
+    private void createUsuario() throws ErroSistema, ClassNotFoundException {
         if (validarCampos()) {
             usuarioController.create(new Usuario(nomeField.getText(), telefoneField.getText(), emailField.getText(),
                 cpfField.getText(), new String(senhaField.getPassword())));
@@ -179,7 +193,7 @@ public class CadastroUsuarios extends JFrame {
         }
     }
 
-    private void atualizaUsuario() throws ErroSistema {
+    private void atualizaUsuario() throws ErroSistema, ClassNotFoundException {
         if (validarCampos()) {
             usuarioController.update(new Usuario(usuarioSelecionado.getId(), nomeField.getText(), telefoneField.getText(),
                 emailField.getText(), cpfField.getText(), new String(senhaField.getPassword())));
@@ -187,12 +201,12 @@ public class CadastroUsuarios extends JFrame {
         }
     }
 
-    private void excluirUsuario() throws ErroSistema {
+    private void excluirUsuario() throws ErroSistema, ClassNotFoundException {
         usuarioController.delete(cpfField.getText());
         readUsuarios();
     }
 
-    private void buscarUsuarios() throws ErroSistema {
+    private void buscarUsuarios() throws ErroSistema, ClassNotFoundException {
         tableModel.setRowCount(0);
         for (Usuario u : usuarioController.buscarByNomeOuEmailOuCpf(nomeField.getText(), emailField.getText(), cpfField.getText())) {
             tableModel.addRow(new Object[] {
@@ -258,6 +272,9 @@ public class CadastroUsuarios extends JFrame {
                 CadastroUsuarios frame = new CadastroUsuarios();
                 frame.setVisible(true);
             } catch (ErroSistema e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         });

@@ -10,13 +10,24 @@ public class ConexaoDB {
 
     private static Connection conexao;
 
+    private static final String DRIVER = "org.postgresql.Driver";
     private static final String URL = findVarAmbiente("DATABASE_URL");
     private static final String USERNAME = findVarAmbiente("DATABASE_USERNAME");
     private static final String PASSWORD = findVarAmbiente("DATABASE_PASSWORD");
 
-    public static Connection getConexao() {
+    static {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            throw new RuntimeException("PostgreSQL JDBC Driver not found.", e);
+        }
+    }
+
+    public static Connection getConexao() throws ClassNotFoundException {
         if (conexao == null) {
             try {
+                Class.forName(DRIVER);
                 return DriverManager.getConnection(URL, USERNAME, PASSWORD);
             } catch (SQLException e) {
                 System.err.println("SQLException: " + e.getMessage());

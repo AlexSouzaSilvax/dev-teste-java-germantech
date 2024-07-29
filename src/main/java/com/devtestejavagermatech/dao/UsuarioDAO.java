@@ -14,7 +14,7 @@ import com.devtestejavagermatech.util.exception.ErroSistema;
 
 public class UsuarioDAO {
 
-    public void create(Usuario usuario) throws ErroSistema {
+    public void create(Usuario usuario) throws ErroSistema, ClassNotFoundException {
 
         try {
             Connection conexao = ConexaoDB.getConexao();
@@ -37,7 +37,7 @@ public class UsuarioDAO {
         }
     }
 
-    public List<Usuario> read() throws ErroSistema {
+    public List<Usuario> read() throws ErroSistema, ClassNotFoundException {
 
         try {
 
@@ -59,7 +59,7 @@ public class UsuarioDAO {
         }
     }
 
-    public void update(Usuario usuario) throws ErroSistema {
+    public void update(Usuario usuario) throws ErroSistema, ClassNotFoundException {
 
         try {
 
@@ -83,7 +83,7 @@ public class UsuarioDAO {
         }
     }
 
-    public void delete(UUID uuid) throws ErroSistema {
+    public void delete(UUID uuid) throws ErroSistema, ClassNotFoundException {
 
         try {
 
@@ -96,7 +96,7 @@ public class UsuarioDAO {
         }
     }
 
-    public Usuario buscarUsuarioPorCpf(String pCpf) throws ErroSistema {
+    public Usuario buscarUsuarioPorCpf(String pCpf) throws ErroSistema, ClassNotFoundException {
 
         try {
 
@@ -122,7 +122,7 @@ public class UsuarioDAO {
         }
     }
 
-    public Usuario buscarUsuarioPorId(UUID pId) throws ErroSistema {
+    public Usuario buscarUsuarioPorId(UUID pId) throws ErroSistema, ClassNotFoundException {
 
         try {
 
@@ -148,7 +148,7 @@ public class UsuarioDAO {
         }
     }
 
-    public List<Usuario> buscarByNomeOuEmailOuCpf(String nome, String email, String cpf) throws ErroSistema {
+    public List<Usuario> buscarByNomeOuEmailOuCpf(String nome, String email, String cpf) throws ErroSistema, ClassNotFoundException {
 
         try {
 
