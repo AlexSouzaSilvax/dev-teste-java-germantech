@@ -15,6 +15,7 @@ import com.devtestejavagermatech.util.exception.ErroSistema;
 public class UsuarioDAO {
 
     public void create(Usuario usuario) throws ErroSistema {
+
         try {
             Connection conexao = ConexaoDB.getConexao();
             PreparedStatement ps;
@@ -22,12 +23,13 @@ public class UsuarioDAO {
             ps = conexao.prepareStatement(
                     "insert into usuario_ (id, nome, telefone, email, cpf, senha) VALUES (?,?,?,?,?,?)");
 
-            ps.setObject(1, UUID.randomUUID());
+            ps.setObject(1, usuario.getId());
             ps.setString(2, usuario.getNome());
             ps.setString(3, usuario.getTelefone());
             ps.setString(4, usuario.getEmail());
             ps.setString(5, usuario.getCpf());
             ps.setString(6, usuario.getSenha());
+
             ps.execute();
             ConexaoDB.fecharConexao();
         } catch (SQLException ex) {
@@ -44,7 +46,6 @@ public class UsuarioDAO {
             List<Usuario> usuarios = new ArrayList<>();
 
             while (resultSet.next()) {
-
                 usuarios.add(new Usuario(UUID.fromString(resultSet.getObject("id").toString()),
                         resultSet.getString("nome"),
                         resultSet.getString("telefone"), resultSet.getString("email"), resultSet.getString("cpf"),
@@ -52,16 +53,16 @@ public class UsuarioDAO {
             }
 
             ConexaoDB.fecharConexao();
-
             return usuarios;
-
         } catch (SQLException ex) {
             throw new ErroSistema("Erro ao listar usuarios!", ex);
         }
     }
 
     public void update(Usuario usuario) throws ErroSistema {
+
         try {
+
             Connection conexao = ConexaoDB.getConexao();
             PreparedStatement ps;
 
@@ -83,9 +84,12 @@ public class UsuarioDAO {
     }
 
     public void delete(UUID uuid) throws ErroSistema {
+
         try {
+
             PreparedStatement ps = ConexaoDB.getConexao().prepareStatement("delete from usuario_ where id = ?");
             ps.setObject(1, uuid);
+
             ps.execute();
         } catch (SQLException ex) {
             throw new ErroSistema("Erro ao deletar o usuário!", ex);
@@ -141,6 +145,61 @@ public class UsuarioDAO {
             return usuario;
         } catch (SQLException ex) {
             throw new ErroSistema("Erro ao buscar usuario pelo id!", ex);
+        }
+    }
+
+    public List<Usuario> buscarByNomeOuEmailOuCpf(String nome, String email, String cpf) throws ErroSistema {
+
+        try {
+
+            String query = "select * from usuario_ WHERE 1=1";
+
+            if (!nome.isEmpty()) {
+                query += " and nome ilike ?";
+            }
+
+            if (!email.isEmpty()) {
+                query += " and email ilike ?";
+            }
+
+            if (!cpf.isEmpty()) {
+                query += " and cpf ilike ?";
+            }
+
+            Connection conexao = ConexaoDB.getConexao();
+            PreparedStatement ps = conexao.prepareStatement(query);
+
+            int paramIndex = 1;
+
+            if (!nome.isEmpty()) {
+                ps.setString(paramIndex++, "%" + nome + "%");
+            }
+
+            if (!email.isEmpty()) {
+                ps.setString(paramIndex++, "%" + email + "%");
+            }
+
+            if (!cpf.isEmpty()) {
+                ps.setString(paramIndex++, "%" + cpf + "%");
+            }
+
+            ResultSet resultSet = ps.executeQuery();
+
+            List<Usuario> usuarios = new ArrayList<>();
+
+            while (resultSet.next()) {
+                usuarios.add(new Usuario(UUID.fromString(resultSet.getObject("id").toString()),
+                        resultSet.getString("nome"),
+                        resultSet.getString("telefone"),
+                        resultSet.getString("email"),
+                        resultSet.getString("cpf"),
+                        resultSet.getString("senha")));
+            }
+
+            ConexaoDB.fecharConexao();
+            return usuarios;
+        } catch (SQLException ex) {
+            throw new ErroSistema("Erro ao buscar usuarios!", ex);
         }
     }
 }
