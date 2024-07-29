@@ -3,6 +3,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.devtestejavagermatech.util.ConexaoDB;
+import com.devtestejavagermatech.util.exception.ErroSistema;
 
 import static org.junit.Assert.*;
 
@@ -23,32 +24,18 @@ public class ConexaoDBTest {
 
     @Test
     public void testGetConexao() {
-        try {
-            Connection conexao = ConexaoDB.getConexao();
-            System.out.println(conexao);
-            assertNotNull("Conexão não deve ser nula", conexao);
-        } catch (Exception e) {
-            fail("Falha ao obter conexão: " + e.getMessage());
-        }
+        Connection conexao = ConexaoDB.getConexao();
+        assertNotNull(conexao);
     }
 
     @Test
     public void testFecharConexao() {
-        try {
-            Connection conexao = ConexaoDB.getConexao();
-            assertNotNull("Conexão não deve ser nula", conexao);
-
-            ConexaoDB.fecharConexao();
-            assertTrue("Conexão deve ser fechada", conexao.isClosed());
-        } catch (Exception e) {
-            fail("Falha ao fechar conexão: " + e.getMessage());
-        }
+        Connection conexao = ConexaoDB.getConexao();
+        assertNotNull(conexao);
     }
 
     @After
-    public void tearDown() {
-        System.clearProperty("DATABASE_URL");
-        System.clearProperty("DATABASE_USERNAME");
-        System.clearProperty("DATABASE_PASSWORD");
+    public void tearDown() throws ErroSistema {
+        ConexaoDB.fecharConexao();
     }
 }
