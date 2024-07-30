@@ -40,6 +40,10 @@ Defina em sua máquina local ou cloud as seguintes variáveis de ambiente:
 
   export DATABASE_PASSWORD=sua_password
 
+## Executar o Projeto
+
+Na pasta do diretorio do projeto execute: java -jar target/dev-teste-java-germantech-1.0-SNAPSHOT-jar-with-dependencies.jar
+
 ##
 
 Se você tiver alguma dúvida ou sugestão, sinta-se à vontade para entrar em contato.
