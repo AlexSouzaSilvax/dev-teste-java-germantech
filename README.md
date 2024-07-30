@@ -42,7 +42,9 @@ Defina em sua máquina local ou cloud as seguintes variáveis de ambiente:
 
 ## Executar o Projeto
 
-Na pasta do diretorio do projeto execute: java -jar target/dev-teste-java-germantech-1.0-SNAPSHOT-jar-with-dependencies.jar
+Na pasta do diretorio do projeto execute: 
+
+              java -jar target/dev-teste-java-germantech-1.0-SNAPSHOT-jar-with-dependencies.jar
 
 ##
 
