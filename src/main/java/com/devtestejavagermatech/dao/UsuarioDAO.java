@@ -41,7 +41,7 @@ public class UsuarioDAO {
 
         try {
 
-            ResultSet resultSet = ConexaoDB.getConexao().prepareStatement("select * from usuario_").executeQuery();
+            ResultSet resultSet = ConexaoDB.getConexao().prepareStatement("select * from usuario_ order by 1 desc").executeQuery();
 
             List<Usuario> usuarios = new ArrayList<>();
 
@@ -148,22 +148,23 @@ public class UsuarioDAO {
         }
     }
 
-    public List<Usuario> buscarByNomeOuEmailOuCpf(String nome, String email, String cpf) throws ErroSistema, ClassNotFoundException {
+    public List<Usuario> buscarByNomeOuEmailOuCpf(String nome, String email, String cpf)
+            throws ErroSistema, ClassNotFoundException {
 
         try {
 
-            String query = "select * from usuario_ WHERE 1=1";
+            String query = "select * from usuario_ where 1=1";
 
             if (!nome.isEmpty()) {
-                query += " and nome ilike ?";
+                query += " or upper(nome) like upper('%?%')";
             }
 
             if (!email.isEmpty()) {
-                query += " and email ilike ?";
+                query += " or upper(email) like upper()'%?%')";
             }
 
             if (!cpf.isEmpty()) {
-                query += " and cpf ilike ?";
+                query += " or cpf like '%?%'";
             }
 
             Connection conexao = ConexaoDB.getConexao();
@@ -172,15 +173,15 @@ public class UsuarioDAO {
             int paramIndex = 1;
 
             if (!nome.isEmpty()) {
-                ps.setString(paramIndex++, "%" + nome + "%");
+                ps.setString(paramIndex++, nome);
             }
 
             if (!email.isEmpty()) {
-                ps.setString(paramIndex++, "%" + email + "%");
+                ps.setString(paramIndex++, email);
             }
 
             if (!cpf.isEmpty()) {
-                ps.setString(paramIndex++, "%" + cpf + "%");
+                ps.setString(paramIndex++, cpf);
             }
 
             ResultSet resultSet = ps.executeQuery();

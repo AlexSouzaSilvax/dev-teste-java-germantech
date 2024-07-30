@@ -1,7 +1,6 @@
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.util.UUID;
 
@@ -23,20 +22,20 @@ public class UsuarioDAOTest {
         usuarioDAO.delete(usuarioDAO.buscarUsuarioPorCpf("123.456.789-00").getId());
     }
 
-    //@Test
+    // @Test
     public void testCreateUsuario() throws ErroSistema, ClassNotFoundException {
         Usuario usuario = createUsuario();
         deleteUsuarioById(usuario.getId());
         Assert.assertNotNull(usuarioDAO.buscarUsuarioPorId(usuario.getId()));
     }
 
-    //@Test
+    // @Test
     public void testBuscarUsuarioPorCpf() throws ErroSistema, ClassNotFoundException {
         createUsuario();
         Assert.assertNotNull(usuarioDAO.buscarUsuarioPorCpf("123.456.789-00"));
     }
 
-   // @Test
+    // @Test
     public void testUpdateUsuario() throws ErroSistema, ClassNotFoundException {
         Usuario usuario = createUsuario();
         usuario.setNome("Alex Souza da Silva");
@@ -45,7 +44,7 @@ public class UsuarioDAOTest {
         Assert.assertNotNull(usuarioDAO.buscarUsuarioPorId(usuario.getId()));
     }
 
-   // @Test
+    // @Test
     public void testDeleteUsuarioById() throws ErroSistema, ClassNotFoundException {
         usuarioDAO.delete(UUID.fromString("c02774de-0af3-47e5-8b5b-2b6de1a5a9f7"));
         Assert.assertNotNull(usuarioDAO.buscarUsuarioPorId(UUID.fromString("c02774de-0af3-47e5-8b5b-2b6de1a5a9f7")));

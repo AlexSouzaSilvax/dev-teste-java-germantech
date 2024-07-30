@@ -34,6 +34,9 @@ public class UsuarioController {
         String hashedSenha = BCrypt.hashpw(pUsuario.getSenha(), BCrypt.gensalt());
         pUsuario.setId(UUID.randomUUID());
         pUsuario.setSenha(hashedSenha);
+        if (pUsuario.getTelefone().equals("(  )      -    ")) {
+            pUsuario.setTelefone(null);
+        }
         usuarioDAO.create(pUsuario);
         JOptionPane.showMessageDialog(null, "Usuário adicionado com sucesso!", "Usuário", 1);
     }
@@ -45,7 +48,7 @@ public class UsuarioController {
     public void update(Usuario pUsuario) throws ErroSistema, ClassNotFoundException {
         pUsuario.setSenha(BCrypt.hashpw(pUsuario.getSenha(), BCrypt.gensalt()));
         usuarioDAO.update(pUsuario);
-        JOptionPane.showMessageDialog(null, "Usuário adicionado com sucesso!", "Usuário", 1);
+        JOptionPane.showMessageDialog(null, "Usuário atualizado com sucesso!", "Usuário", 1);
     }
 
     public void delete(String pCpf) throws ErroSistema, ClassNotFoundException {
@@ -68,7 +71,8 @@ public class UsuarioController {
         return false;
     }
 
-    public List<Usuario> buscarByNomeOuEmailOuCpf(String nome, String email, String cpf) throws ErroSistema, ClassNotFoundException {
+    public List<Usuario> buscarByNomeOuEmailOuCpf(String nome, String email, String cpf)
+            throws ErroSistema, ClassNotFoundException {
         return usuarioDAO.buscarByNomeOuEmailOuCpf(nome, email, cpf);
     }
 

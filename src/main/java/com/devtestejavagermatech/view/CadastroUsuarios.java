@@ -7,6 +7,7 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.text.ParseException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -16,16 +17,26 @@ import com.devtestejavagermatech.util.exception.ErroSistema;
 
 public class CadastroUsuarios extends JFrame {
     private JTextField nomeField;
-    private JTextField telefoneField;
+    private JFormattedTextField telefoneField;
     private JTextField emailField;
     private JFormattedTextField cpfField;
     private JPasswordField senhaField;
     private JTable table;
     private DefaultTableModel tableModel;
 
+    JButton novoButton = new JButton("Novo");
+    JButton addButton = new JButton("Salvar");
+    JButton searchButton = new JButton("Buscar");
+    JButton listarButton = new JButton("Listar");
+    JButton deleteButton = new JButton("Excluir");
+
+    JButton atualizaButton = new JButton("Atualizar");
+
     private List<Usuario> listaUsuarios = new ArrayList<>();
-    private UsuarioController usuarioController = new UsuarioController();
-    private Usuario usuarioSelecionado = new Usuario();
+
+    UsuarioController usuarioController = new UsuarioController();
+
+    Usuario usuarioSelecionado = new Usuario();
 
     public CadastroUsuarios() throws ErroSistema, ClassNotFoundException {
         initialize();
@@ -56,8 +67,46 @@ public class CadastroUsuarios extends JFrame {
 
         nomeField = new JTextField();
         telefoneField = new JFormattedTextField(usuarioController.createFormatter("(##) #####-####"));
+        telefoneField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    telefoneField.setText("");
+                    telefoneField.setValue(null);
+                });
+            }
+        
+            @Override
+            public void focusLost(FocusEvent e) {
+                try {
+                    telefoneField.commitEdit();
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
         emailField = new JTextField();
         cpfField = new JFormattedTextField(usuarioController.createFormatter("###.###.###-##"));
+        cpfField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    cpfField.setText("");
+                    cpfField.setValue(null);
+                });
+            }
+        
+            @Override
+            public void focusLost(FocusEvent e) {
+                try {
+                    cpfField.commitEdit();
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
         senhaField = new JPasswordField();
 
         formPanel.add(new JLabel("Nome:"));
@@ -77,53 +126,45 @@ public class CadastroUsuarios extends JFrame {
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
-        JButton novoButton = new JButton("Novo");
         novoButton.addActionListener(e -> limpaForm());
         buttonPanel.add(novoButton);
 
-        JButton addButton = new JButton("Salvar");
         addButton.addActionListener(e -> {
             try {
                 createUsuario();
             } catch (ErroSistema e1) {
                 e1.printStackTrace();
             } catch (ClassNotFoundException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             limpaForm();
         });
         buttonPanel.add(addButton);
 
-        JButton searchButton = new JButton("Buscar");
         searchButton.addActionListener(e -> {
             try {
                 buscarUsuarios();
             } catch (ErroSistema e1) {
                 e1.printStackTrace();
             } catch (ClassNotFoundException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             limpaForm();
         });
         buttonPanel.add(searchButton);
 
-        JButton listarButton = new JButton("Listar");
         listarButton.addActionListener(e -> {
             try {
                 readUsuarios();
             } catch (ErroSistema e1) {
                 e1.printStackTrace();
             } catch (ClassNotFoundException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             limpaForm();
         });
         buttonPanel.add(listarButton);
 
-        JButton atualizaButton = new JButton("Atualizar");
         atualizaButton.setVisible(false);
         atualizaButton.addActionListener(e -> {
             try {
@@ -131,7 +172,6 @@ public class CadastroUsuarios extends JFrame {
             } catch (ErroSistema e1) {
                 e1.printStackTrace();
             } catch (ClassNotFoundException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             limpaForm();
@@ -139,7 +179,6 @@ public class CadastroUsuarios extends JFrame {
         });
         buttonPanel.add(atualizaButton);
 
-        JButton deleteButton = new JButton("Excluir");
         deleteButton.setVisible(false);
         deleteButton.addActionListener(e -> {
             try {
@@ -147,7 +186,6 @@ public class CadastroUsuarios extends JFrame {
             } catch (ErroSistema e1) {
                 e1.printStackTrace();
             } catch (ClassNotFoundException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             limpaForm();
@@ -168,6 +206,8 @@ public class CadastroUsuarios extends JFrame {
                 int row = table.getSelectedRow();
                 if (row >= 0) {
                     atualizaUsuarioForm(listaUsuarios.get(row));
+                    atualizaButton.setVisible(false);
+                    deleteButton.setVisible(true);
                 }
             }
         });
@@ -176,43 +216,73 @@ public class CadastroUsuarios extends JFrame {
     }
 
     private void readUsuarios() throws ErroSistema, ClassNotFoundException {
+
         tableModel.setRowCount(0);
-        listaUsuarios = usuarioController.read();
-        for (Usuario u : listaUsuarios) {
+
+        for (Usuario u : listaUsuarios = usuarioController.read()) {
             tableModel.addRow(new Object[] {
-                u.getId(), u.getNome(), u.getTelefone(), u.getEmail(), u.getCpf()
+                    u.getId(),
+                    u.getNome(),
+                    u.getTelefone(),
+                    u.getEmail(),
+                    u.getCpf()
             });
         }
     }
 
     private void createUsuario() throws ErroSistema, ClassNotFoundException {
         if (validarCampos()) {
-            usuarioController.create(new Usuario(nomeField.getText(), telefoneField.getText(), emailField.getText(),
-                cpfField.getText(), new String(senhaField.getPassword())));
+            usuarioController.create(new Usuario(nomeField.getText(), telefoneField.getText(),
+                    emailField.getText(), cpfField.getText(), new String(senhaField.getPassword())));
+
+            limpaForm();
+            usuarioSelecionado = new Usuario();
+            atualizaUsuarioForm(usuarioSelecionado);
             readUsuarios();
         }
+
     }
 
     private void atualizaUsuario() throws ErroSistema, ClassNotFoundException {
+
         if (validarCampos()) {
-            usuarioController.update(new Usuario(usuarioSelecionado.getId(), nomeField.getText(), telefoneField.getText(),
-                emailField.getText(), cpfField.getText(), new String(senhaField.getPassword())));
+
+            usuarioController
+                    .update(new Usuario(usuarioSelecionado.getId(), nomeField.getText(), telefoneField.getText(),
+                            emailField.getText(), cpfField.getText(), new String(senhaField.getPassword())));
+
+            limpaForm();
+            usuarioSelecionado = new Usuario();
+            atualizaUsuarioForm(usuarioSelecionado);
             readUsuarios();
         }
     }
 
     private void excluirUsuario() throws ErroSistema, ClassNotFoundException {
-        usuarioController.delete(cpfField.getText());
+
+        String cpf = cpfField.getText();
+
+        usuarioController.delete(cpf);
+        
+
         readUsuarios();
     }
 
     private void buscarUsuarios() throws ErroSistema, ClassNotFoundException {
+        String nome = nomeField.getText();
+        String email = emailField.getText();
+        String cpf = cpfField.getText();
         tableModel.setRowCount(0);
-        for (Usuario u : usuarioController.buscarByNomeOuEmailOuCpf(nomeField.getText(), emailField.getText(), cpfField.getText())) {
+        for (Usuario u : usuarioController.buscarByNomeOuEmailOuCpf(nome, email, cpf)) {
             tableModel.addRow(new Object[] {
-                u.getId(), u.getNome(), u.getTelefone(), u.getEmail(), u.getCpf()
+                    u.getId(),
+                    u.getNome(),
+                    u.getTelefone(),
+                    u.getEmail(),
+                    u.getCpf()
             });
         }
+
     }
 
     private void atualizaUsuarioForm(Usuario usuarioSelecionado) {
@@ -222,6 +292,7 @@ public class CadastroUsuarios extends JFrame {
         emailField.setText(usuarioSelecionado.getEmail());
         cpfField.setText(usuarioSelecionado.getCpf());
         senhaField.setText(usuarioSelecionado.getSenha());
+
     }
 
     private boolean validarCampos() {
@@ -231,27 +302,38 @@ public class CadastroUsuarios extends JFrame {
         String email = emailField.getText();
         String senha = new String(senhaField.getPassword());
 
-        if (nome.isEmpty()) {
+        if (nome.isEmpty() || nome.equalsIgnoreCase(" ") || nome.equals(null)) {
             JOptionPane.showMessageDialog(this, "Nome é obrigatório!");
             return false;
         }
-        if (cpf.isEmpty()) {
+
+        if (cpf.isEmpty() || cpf.equals("   .   .   -  ") || cpf.equals(null)) {
             JOptionPane.showMessageDialog(this, "CPF é obrigatório!");
             return false;
         }
+
         if (!usuarioController.isValidCPF(cpf)) {
             JOptionPane.showMessageDialog(this, "CPF inválido!");
             return false;
         }
-        if (!telefone.trim().isEmpty() && !usuarioController.isValidTelefone(telefone)) {
-            JOptionPane.showMessageDialog(this, "Telefone inválido!");
-            return false;
+
+        if (!telefone.equals("(  )      -    ") && usuarioController.verificaNTelefone(telefone)) {
+            if (!usuarioController.isValidTelefone(telefone)) {
+                JOptionPane.showMessageDialog(this, "Telefone inválido!");
+                return false;
+            }
+        } else {
+            telefoneField.setText("");
         }
-        if (!email.trim().isEmpty() && !usuarioController.isValidEmail(email)) {
-            JOptionPane.showMessageDialog(this, "Email inválido!");
-            return false;
+
+        if (!email.isEmpty() || !email.equals("")) {
+            if (!usuarioController.isValidEmail(email)) {
+                JOptionPane.showMessageDialog(this, "Email inválido!");
+                return false;
+            }
         }
-        if (senha.isEmpty()) {
+
+        if (senha.isEmpty() || senha == null) {
             JOptionPane.showMessageDialog(this, "Senha é obrigatória!");
             return false;
         }
@@ -259,29 +341,40 @@ public class CadastroUsuarios extends JFrame {
     }
 
     private void limpaForm() {
-        nomeField.setText("");
-        telefoneField.setText("");
-        emailField.setText("");
-        cpfField.setText("");
-        senhaField.setText("");
+        nomeField.setText(null);
+        telefoneField.setText(null);
+        emailField.setText(null);
+        cpfField.setText(null);
+        senhaField.setText(null);
+        try {
+            telefoneField.commitEdit();
+            cpfField.commitEdit();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                CadastroUsuarios frame = new CadastroUsuarios();
-                frame.setVisible(true);
-            } catch (ErroSistema e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                CadastroUsuarios c;
+                try {
+                    c = new CadastroUsuarios();
+                    c.setVisible(true);
+                    c.setLocationRelativeTo(null);
+                } catch (ErroSistema e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
     }
 }
 
 class ButtonRenderer extends JButton implements TableCellRenderer {
+
     public ButtonRenderer() {
         setOpaque(true);
         setText("Edit");
@@ -298,48 +391,5 @@ class ButtonRenderer extends JButton implements TableCellRenderer {
             setForeground(table.getForeground());
         }
         return this;
-    }
-}
-
-class ButtonEditor extends DefaultCellEditor {
-    private final JButton button;
-    private final List<Usuario> users;
-    private Usuario selectedUser;
-    private boolean isPushed;
-
-    public ButtonEditor(JCheckBox checkBox, List<Usuario> users) {
-        super(checkBox);
-        this.users = users;
-
-        button = new JButton();
-        button.setOpaque(true);
-        button.setText("Edit");
-
-        button.addActionListener(e -> fireEditingStopped());
-    }
-
-    @Override
-    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        selectedUser = users.get(row);
-        button.setText("Edit");
-        isPushed = true;
-        return button;
-    }
-
-    @Override
-    public Object getCellEditorValue() {
-        isPushed = false;
-        return button.getText();
-    }
-
-    @Override
-    public boolean stopCellEditing() {
-        isPushed = false;
-        return super.stopCellEditing();
-    }
-
-    @Override
-    protected void fireEditingStopped() {
-        super.fireEditingStopped();
     }
 }
