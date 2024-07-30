@@ -3,7 +3,6 @@ com/devtestejavagermatech/dao/UsuarioDAO.class
 com/devtestejavagermatech/view/CadastroUsuarios$2.class
 com/devtestejavagermatech/dao/CrudDAO.class
 com/devtestejavagermatech/model/Usuario.class
-com/devtestejavagermatech/view/ButtonRenderer.class
 com/devtestejavagermatech/view/CadastroUsuarios$3.class
 com/devtestejavagermatech/util/ConexaoDB.class
 com/devtestejavagermatech/view/CadastroUsuarios$4.class

@@ -73,6 +73,16 @@ public class UsuarioController {
 
     public List<Usuario> buscarByNomeOuEmailOuCpf(String nome, String email, String cpf)
             throws ErroSistema, ClassNotFoundException {
+        System.out.println("AQUI: " + nome);
+        if (nome.equals(null)) {
+            nome = "";
+        }
+        if (email.equals(null)) {
+            email = "";
+        }
+        if (cpf.equals(null) || cpf.equals("   .   .   -  ")) {
+            cpf = "";
+        }
         return usuarioDAO.buscarByNomeOuEmailOuCpf(nome, email, cpf);
     }
 

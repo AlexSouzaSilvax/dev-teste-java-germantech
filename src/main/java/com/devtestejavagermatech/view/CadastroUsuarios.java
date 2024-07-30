@@ -2,7 +2,6 @@ package com.devtestejavagermatech.view;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 
 import java.awt.*;
 import java.awt.event.FocusAdapter;
@@ -126,7 +125,12 @@ public class CadastroUsuarios extends JFrame {
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
-        novoButton.addActionListener(e -> limpaForm());
+        novoButton.addActionListener(e -> {
+            limpaForm();
+            deleteButton.setVisible(false);
+            atualizaButton.setVisible(false);
+            addButton.setVisible(true);
+        });
         buttonPanel.add(novoButton);
 
         addButton.addActionListener(e -> {
@@ -197,15 +201,20 @@ public class CadastroUsuarios extends JFrame {
     }
 
     private JScrollPane createTableScrollPane() {
-        tableModel = new DefaultTableModel(new String[] { "ID", "Nome", "Telefone", "Email", "CPF" }, 0);
+        tableModel = new DefaultTableModel(new String[] { "ID", "Nome", "Telefone", "Email", "CPF" }, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         table = new JTable(tableModel);
         table.setRowHeight(30);
 
-        table.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
+        table.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting()) {
                 int row = table.getSelectedRow();
                 if (row >= 0) {
+                    limpaForm();
                     atualizaUsuarioForm(listaUsuarios.get(row));
                     atualizaButton.setVisible(true);
                     deleteButton.setVisible(true);
@@ -269,17 +278,28 @@ public class CadastroUsuarios extends JFrame {
     }
 
     private void buscarUsuarios() throws ErroSistema, ClassNotFoundException {
-        String nome = nomeField.getText();
-        String email = emailField.getText();
-        String cpf = cpfField.getText();
         tableModel.setRowCount(0);
-        for (Usuario u : usuarioController.buscarByNomeOuEmailOuCpf(nome, email, cpf)) {
+        for (Usuario u : usuarioController.buscarByNomeOuEmailOuCpf(nomeField.getText(), emailField.getText(),
+                cpfField.getText())) {
+
+            String tel = u.getTelefone();
+
+            if (tel.isEmpty() || tel.equals(null)) {
+                tel = "(  )      -    ";
+            }
+
+            String cpf = u.getCpf();
+
+            if (cpf.isEmpty() || cpf.equals(null)) {
+                cpf = "   .   .   -  ";
+            }
+
             tableModel.addRow(new Object[] {
                     u.getId(),
                     u.getNome(),
-                    u.getTelefone(),
+                    tel,
                     u.getEmail(),
-                    u.getCpf()
+                    cpf
             });
         }
 
@@ -341,17 +361,14 @@ public class CadastroUsuarios extends JFrame {
     }
 
     private void limpaForm() {
-        nomeField.setText(null);
-        telefoneField.setText(null);
-        emailField.setText(null);
-        cpfField.setText(null);
-        senhaField.setText(null);
-        try {
-            telefoneField.commitEdit();
-            cpfField.commitEdit();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        nomeField.setText("");
+        telefoneField.setText("");
+        emailField.setText("");
+        cpfField.setText("");
+        senhaField.setText("");
+
+        telefoneField.setValue(null);
+        cpfField.setValue(null);
     }
 
     public static void main(String[] args) {
@@ -365,31 +382,9 @@ public class CadastroUsuarios extends JFrame {
                 } catch (ErroSistema e) {
                     e.printStackTrace();
                 } catch (ClassNotFoundException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
         });
-    }
-}
-
-class ButtonRenderer extends JButton implements TableCellRenderer {
-
-    public ButtonRenderer() {
-        setOpaque(true);
-        setText("Edit");
-    }
-
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-            int row, int column) {
-        if (isSelected) {
-            setBackground(table.getSelectionBackground());
-            setForeground(table.getSelectionForeground());
-        } else {
-            setBackground(table.getBackground());
-            setForeground(table.getForeground());
-        }
-        return this;
     }
 }

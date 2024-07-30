@@ -41,7 +41,8 @@ public class UsuarioDAO {
 
         try {
 
-            ResultSet resultSet = ConexaoDB.getConexao().prepareStatement("select * from usuario_ order by 1 desc").executeQuery();
+            ResultSet resultSet = ConexaoDB.getConexao().prepareStatement("select * from usuario_ order by 1 desc")
+                    .executeQuery();
 
             List<Usuario> usuarios = new ArrayList<>();
 
@@ -152,44 +153,18 @@ public class UsuarioDAO {
             throws ErroSistema, ClassNotFoundException {
 
         try {
-
-            String query = "select * from usuario_ where 1=1";
-
-            if (!nome.isEmpty()) {
-                query += " or upper(nome) like upper('%?%')";
-            }
-
-            if (!email.isEmpty()) {
-                query += " or upper(email) like upper()'%?%')";
-            }
-
-            if (!cpf.isEmpty()) {
-                query += " or cpf like '%?%'";
-            }
-
+            
             Connection conexao = ConexaoDB.getConexao();
-            PreparedStatement ps = conexao.prepareStatement(query);
-
-            int paramIndex = 1;
-
-            if (!nome.isEmpty()) {
-                ps.setString(paramIndex++, nome);
-            }
-
-            if (!email.isEmpty()) {
-                ps.setString(paramIndex++, email);
-            }
-
-            if (!cpf.isEmpty()) {
-                ps.setString(paramIndex++, cpf);
-            }
+            PreparedStatement ps = conexao.prepareStatement("select * from usuario_ where upper(nome) like '%" + nome
+                    + "%' or upper(email) like '%" + email + "%' or cpf like '%" + cpf + "%' ");
 
             ResultSet resultSet = ps.executeQuery();
 
             List<Usuario> usuarios = new ArrayList<>();
 
             while (resultSet.next()) {
-                usuarios.add(new Usuario(UUID.fromString(resultSet.getObject("id").toString()),
+                usuarios.add(new Usuario(
+                        UUID.fromString(resultSet.getObject("id").toString()),
                         resultSet.getString("nome"),
                         resultSet.getString("telefone"),
                         resultSet.getString("email"),
