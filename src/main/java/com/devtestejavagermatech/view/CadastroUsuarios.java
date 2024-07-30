@@ -75,7 +75,7 @@ public class CadastroUsuarios extends JFrame {
                     telefoneField.setValue(null);
                 });
             }
-        
+
             @Override
             public void focusLost(FocusEvent e) {
                 try {
@@ -96,7 +96,7 @@ public class CadastroUsuarios extends JFrame {
                     cpfField.setValue(null);
                 });
             }
-        
+
             @Override
             public void focusLost(FocusEvent e) {
                 try {
@@ -141,6 +141,21 @@ public class CadastroUsuarios extends JFrame {
         });
         buttonPanel.add(addButton);
 
+        atualizaButton.setVisible(false);
+        atualizaButton.addActionListener(e -> {
+            try {
+                atualizaUsuario();
+            } catch (ErroSistema e1) {
+                e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                e1.printStackTrace();
+            }
+            limpaForm();
+            atualizaButton.setVisible(false);
+        });
+
+        buttonPanel.add(atualizaButton);
+
         searchButton.addActionListener(e -> {
             try {
                 buscarUsuarios();
@@ -164,20 +179,6 @@ public class CadastroUsuarios extends JFrame {
             limpaForm();
         });
         buttonPanel.add(listarButton);
-
-        atualizaButton.setVisible(false);
-        atualizaButton.addActionListener(e -> {
-            try {
-                atualizaUsuario();
-            } catch (ErroSistema e1) {
-                e1.printStackTrace();
-            } catch (ClassNotFoundException e1) {
-                e1.printStackTrace();
-            }
-            limpaForm();
-            atualizaButton.setVisible(false);
-        });
-        buttonPanel.add(atualizaButton);
 
         deleteButton.setVisible(false);
         deleteButton.addActionListener(e -> {
@@ -206,8 +207,9 @@ public class CadastroUsuarios extends JFrame {
                 int row = table.getSelectedRow();
                 if (row >= 0) {
                     atualizaUsuarioForm(listaUsuarios.get(row));
-                    atualizaButton.setVisible(false);
+                    atualizaButton.setVisible(true);
                     deleteButton.setVisible(true);
+                    addButton.setVisible(false);
                 }
             }
         });
@@ -235,6 +237,7 @@ public class CadastroUsuarios extends JFrame {
             usuarioController.create(new Usuario(nomeField.getText(), telefoneField.getText(),
                     emailField.getText(), cpfField.getText(), new String(senhaField.getPassword())));
 
+            tableModel.setRowCount(0);
             limpaForm();
             usuarioSelecionado = new Usuario();
             atualizaUsuarioForm(usuarioSelecionado);
@@ -244,13 +247,11 @@ public class CadastroUsuarios extends JFrame {
     }
 
     private void atualizaUsuario() throws ErroSistema, ClassNotFoundException {
-
         if (validarCampos()) {
-
             usuarioController
                     .update(new Usuario(usuarioSelecionado.getId(), nomeField.getText(), telefoneField.getText(),
                             emailField.getText(), cpfField.getText(), new String(senhaField.getPassword())));
-
+            tableModel.setRowCount(0);
             limpaForm();
             usuarioSelecionado = new Usuario();
             atualizaUsuarioForm(usuarioSelecionado);
@@ -263,7 +264,6 @@ public class CadastroUsuarios extends JFrame {
         String cpf = cpfField.getText();
 
         usuarioController.delete(cpf);
-        
 
         readUsuarios();
     }
